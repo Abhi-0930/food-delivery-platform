@@ -9,6 +9,7 @@ import axios from 'axios';
 const PlaceOrder = () => {
 
     const [payment, setPayment] = useState("cod")
+    const [isPlacing, setIsPlacing] = useState(false);
     const [data, setData] = useState({
         firstName: "",
         lastName: "",
@@ -33,6 +34,8 @@ const PlaceOrder = () => {
 
     const placeOrder = async (e) => {
         e.preventDefault()
+        if (isPlacing) return;
+        setIsPlacing(true);
         let orderItems = [];
         food_list.map(((item) => {
             if (cartItems[item._id] > 0) {
@@ -46,26 +49,30 @@ const PlaceOrder = () => {
             items: orderItems,
             amount: getTotalCartAmount() + deliveryCharge,
         }
-        if (payment === "stripe") {
-            let response = await axios.post(url + "/api/order/place", orderData, { headers: { token } });
-            if (response.data.success) {
-                const { session_url } = response.data;
-                window.location.replace(session_url);
+        try {
+            if (payment === "stripe") {
+                let response = await axios.post(url + "/api/order/place", orderData, { headers: { token } });
+                if (response.data.success) {
+                    const { session_url } = response.data;
+                    window.location.replace(session_url);
+                }
+                else {
+                    toast.error("Something Went Wrong")
+                }
             }
-            else {
-                toast.error("Something Went Wrong")
+            else{
+                let response = await axios.post(url + "/api/order/placecod", orderData, { headers: { token } });
+                if (response.data.success) {
+                    navigate("/myorders")
+                    toast.success(response.data.message)
+                    setCartItems({});
+                }
+                else {
+                    toast.error("Something Went Wrong")
+                }
             }
-        }
-        else{
-            let response = await axios.post(url + "/api/order/placecod", orderData, { headers: { token } });
-            if (response.data.success) {
-                navigate("/myorders")
-                toast.success(response.data.message)
-                setCartItems({});
-            }
-            else {
-                toast.error("Something Went Wrong")
-            }
+        } finally {
+            setIsPlacing(false);
         }
 
     }
@@ -122,7 +129,9 @@ const PlaceOrder = () => {
                         <p>Stripe ( Credit / Debit )</p>
                     </div>
                 </div>
-                <button className='place-order-submit' type='submit'>{payment==="cod"?"Place Order":"Proceed To Payment"}</button>
+                <button className='place-order-submit' type='submit' disabled={isPlacing}>
+                    {payment==="cod"?"Place Order":"Proceed To Payment"}
+                </button>
             </div>
         </form>
     )

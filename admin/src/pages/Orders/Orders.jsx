@@ -34,11 +34,15 @@ const Order = () => {
     fetchAllOrders();
   }, [])
 
+  const uniqueOrders = Array.from(
+    new Map(orders.map((order) => [order._id, order])).values()
+  );
+
   return (
     <div className='order add'>
       <h3>Order Page</h3>
       <div className="order-list">
-        {orders.map((order, index) => (
+        {uniqueOrders.map((order, index) => (
           <div key={index} className='order-item'>
             <img src={assets.parcel_icon} alt="" />
             <div>
