@@ -28,6 +28,71 @@
     gap: 40px;
 }
 
+.navbar-search {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+    margin-left: 20px;
+}
+
+.navbar-search-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+}
+
+.navbar-search-btn img {
+    width: 16px;
+}
+
+.navbar-search-input {
+    width: 0;
+    opacity: 0;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: 20px;
+    font-size: 14px;
+    outline: none;
+    transition: width 0.25s ease, opacity 0.2s ease, padding 0.25s ease, border-color 0.25s ease;
+}
+
+.navbar-search.open .navbar-search-input {
+    width: 200px;
+    opacity: 1;
+    padding: 8px 12px;
+    border-color: #FF4C24;
+    background-color: #fff;
+}
+
+.navbar-search-input:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.navbar-search-close {
+    display: none;
+    background: transparent;
+    border: none;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    color: #49557E;
+}
+
+.navbar-search.open .navbar-search-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.navbar-search.open .navbar-search-btn {
+    display: none;
+}
+
 .navbar-search-icon{
 position: relative;
 }

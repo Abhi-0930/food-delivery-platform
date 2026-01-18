@@ -9,6 +9,7 @@ const StoreContextProvider = (props) => {
     const [food_list, setFoodList] = useState(menuData.food_list);
     const [cartItems, setCartItems] = useState({});
     const [token, setToken] = useState("")
+    const [searchQuery, setSearchQuery] = useState("");
     const currency = "₹";
     const deliveryCharge = 50;
 
@@ -89,7 +90,9 @@ const StoreContextProvider = (props) => {
         loadCartData,
         setCartItems,
         currency,
-        deliveryCharge
+        deliveryCharge,
+        searchQuery,
+        setSearchQuery
     };
 
     return (
