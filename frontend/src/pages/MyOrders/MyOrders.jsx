@@ -24,7 +24,15 @@ const MyOrders = () => {
     <div className='my-orders'>
       <h2>My Orders</h2>
       <div className="container">
-        {data.map((order,index)=>{
+        {data.length === 0 ? (
+          <div className="my-orders-empty">
+            <div className="my-orders-empty-image">
+              <img src={assets.parcel_icon} alt="No orders yet" />
+            </div>
+            <h3>No orders yet</h3>
+            <p>You haven't booked any orders. Start exploring the menu and place your first one.</p>
+          </div>
+        ) : data.map((order,index)=>{
           return (
             <div key={index} className='my-orders-order'>
                 <img src={assets.parcel_icon} alt="" />

@@ -35,6 +35,48 @@
     cursor: pointer;
     color: #454545;
 }
+
+.my-orders-empty{
+    margin: 40px auto 0;
+    max-width: 420px;
+    text-align: center;
+    padding: 30px 20px;
+    border: 1px dashed #ff4c24;
+    border-radius: 12px;
+    background: #fff8f6;
+    color: #454545;
+}
+
+.my-orders-empty-image{
+    width: 110px;
+    height: 110px;
+    margin: 0 auto 12px;
+    border-radius: 50%;
+    background: #fff0eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: float 2.2s ease-in-out infinite;
+}
+
+.my-orders-empty-image img{
+    width: 60px;
+}
+
+.my-orders-empty h3{
+    margin-bottom: 6px;
+}
+
+.my-orders-empty p{
+    font-size: 14px;
+    color: #6c6c6c;
+    line-height: 1.4;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+}
 @media (max-width:900px) {
     .my-orders-order{
         grid-template-columns: 1fr 2fr 1fr;
