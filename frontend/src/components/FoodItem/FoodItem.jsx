@@ -2,22 +2,36 @@ import React, { useContext, useState } from 'react'
 import './FoodItem.css'
 import { assets } from '../../assets/assets'
 import { StoreContext } from '../../Context/StoreContext';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 const FoodItem = ({ image, name, price, desc , id }) => {
 
     const [itemCount, setItemCount] = useState(0);
     const {cartItems,addToCart,removeFromCart,url,currency} = useContext(StoreContext);
+    const navigate = useNavigate();
 
     const imageUrl = image?.startsWith("http") || image?.startsWith("/")
         ? image
         : `${url}/images/${image}`;
+
+    const handleAddToCart = () => {
+        addToCart(id);
+        toast.success(
+            <div className="cart-toast">
+                <span>Item added to cart.</span>
+                <button type="button" onClick={() => navigate('/cart')}>Go to cart</button>
+            </div>,
+            { autoClose: 2000 }
+        );
+    };
 
     return (
         <div className='food-item'>
             <div className='food-item-img-container'>
                 <img className='food-item-image' src={imageUrl} alt="" />
                 {!cartItems[id]
-                ?<img className='add' onClick={() => addToCart(id)} src={assets.add_icon_white} alt="" />
+                ?<img className='add' onClick={handleAddToCart} src={assets.add_icon_white} alt="" />
                 :<div className="food-item-counter">
                         <img src={assets.remove_icon_red} onClick={()=>removeFromCart(id)} alt="" />
                         <p>{cartItems[id]}</p>
