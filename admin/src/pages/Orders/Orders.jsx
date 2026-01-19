@@ -32,6 +32,8 @@ const Order = () => {
 
   useEffect(() => {
     fetchAllOrders();
+    const intervalId = setInterval(fetchAllOrders, 10000);
+    return () => clearInterval(intervalId);
   }, [])
 
   const uniqueOrders = Array.from(

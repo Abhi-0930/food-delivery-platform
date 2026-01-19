@@ -15,9 +15,10 @@ const MyOrders = () => {
   }
 
   useEffect(()=>{
-    if (token) {
-      fetchOrders();
-    }
+    if (!token) return;
+    fetchOrders();
+    const intervalId = setInterval(fetchOrders, 10000);
+    return () => clearInterval(intervalId);
   },[token])
 
   const uniqueOrders = Array.from(
