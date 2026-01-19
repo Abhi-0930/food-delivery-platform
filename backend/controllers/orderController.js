@@ -112,10 +112,31 @@ const userOrders = async (req, res) => {
 const updateStatus = async (req, res) => {
     console.log(req.body);
     try {
+        const statusPriority = {
+            "Food Processing": 0,
+            "Out for delivery": 1,
+            "Delivered": 2
+        };
+
+        const order = await orderModel.findById(req.body.orderId);
+        if (!order) {
+            return res.json({ success: false, message: "Order not found" });
+        }
+
+        const nextPriority = statusPriority[req.body.status];
+        const currentPriority = statusPriority[order.status];
+
+        if (nextPriority < currentPriority) {
+            return res.json({
+                success: false,
+                message: "Cannot move order to a previous status"
+            });
+        }
+
         const isDelivered = req.body.status === "Delivered";
         await orderModel.findByIdAndUpdate(req.body.orderId, {
             status: req.body.status,
-            deliveredAt: isDelivered ? new Date() : null
+            deliveredAt: isDelivered ? new Date() : order.deliveredAt
         });
         res.json({ success: true, message: "Status Updated" })
     } catch (error) {

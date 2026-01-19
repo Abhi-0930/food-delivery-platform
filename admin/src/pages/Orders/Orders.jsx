@@ -26,6 +26,8 @@ const Order = () => {
     })
     if (response.data.success) {
       await fetchAllOrders();
+    } else {
+      toast.error(response.data.message || "Status update blocked")
     }
   }
 
@@ -40,11 +42,19 @@ const Order = () => {
     new Map(orders.map((order) => [order._id, order])).values()
   );
 
+  const statusPriority = {
+    "Food Processing": 0,
+    "Out for delivery": 1,
+    "Delivered": 2
+  };
+
   return (
     <div className='order add'>
       <h3>Order Page</h3>
       <div className="order-list">
-        {uniqueOrders.map((order, index) => (
+        {uniqueOrders.map((order, index) => {
+          const currentPriority = statusPriority[order.status] ?? 0;
+          return (
           <div key={index} className='order-item'>
             <img src={assets.parcel_icon} alt="" />
             <div>
@@ -68,12 +78,12 @@ const Order = () => {
             <p>Items : {order.items.length}</p>
             <p>{currency}{order.amount}</p>
             <select onChange={(e) => statusHandler(e, order._id)} value={order.status} name="" id="">
-              <option value="Food Processing">Food Processing</option>
-              <option value="Out for delivery">Out for delivery</option>
+              <option value="Food Processing" disabled={currentPriority > 0}>Food Processing</option>
+              <option value="Out for delivery" disabled={currentPriority > 1}>Out for delivery</option>
               <option value="Delivered">Delivered</option>
             </select>
           </div>
-        ))}
+        )})}
       </div>
     </div>
   )
