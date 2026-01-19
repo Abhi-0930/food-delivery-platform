@@ -5,7 +5,8 @@
     padding: 8px 4%;
 }
 .navbar .logo{
-    width: max(10%,80px);
+    width: 45px;
+    height: auto;
 }
 .navbar .profile{
     width: 40px;
