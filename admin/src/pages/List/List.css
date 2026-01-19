@@ -13,6 +13,15 @@
 .list-table-format img{
     width: 50px;
 }
+.list-empty{
+    padding: 18px;
+    border: 1px dashed #d1d1d1;
+    background: #fafafa;
+    color: #6c6c6c;
+    text-align: center;
+    border-radius: 10px;
+    margin-top: 12px;
+}
 @media(max-width:600px){
 
     .list-table-format{

@@ -8,10 +8,80 @@ const currency = "inr";
 const deliveryCharge = 50;
 const frontend_URL = 'http://localhost:5173';
 
-const removeExpiredDeliveredOrders = async () => {
-    const cutoff = new Date(Date.now() - 5 * 60 * 1000);
-    await orderModel.deleteMany({ deliveredAt: { $ne: null, $lte: cutoff } });
+const normalizeItems = (items = []) =>
+    items
+        .map((item) => ({
+            id: item._id ?? item.id ?? "",
+            name: item.name ?? "",
+            qty: item.quantity ?? 0,
+            price: item.price ?? 0
+        }))
+        .sort((a, b) => `${a.id}${a.name}`.localeCompare(`${b.id}${b.name}`));
+
+const normalizeAddress = (address = {}) => ({
+    firstName: address.firstName ?? "",
+    lastName: address.lastName ?? "",
+    email: address.email ?? "",
+    street: address.street ?? "",
+    city: address.city ?? "",
+    state: address.state ?? "",
+    zipcode: address.zipcode ?? "",
+    country: address.country ?? "",
+    phone: address.phone ?? ""
+});
+
+const removeRecentDuplicates = async () => {
+    const duplicateWindowMs = 2 * 60 * 1000;
+    const cutoff = new Date(Date.now() - duplicateWindowMs);
+    const recentOrders = await orderModel.find({ date: { $gte: cutoff } }).sort({ date: 1 });
+    const recent = [];
+    const toDelete = [];
+
+    recentOrders.forEach((order) => {
+        const signature = {
+            userId: order.userId ?? "",
+            amount: order.amount ?? 0,
+            items: JSON.stringify(normalizeItems(order.items)),
+            address: JSON.stringify(normalizeAddress(order.address))
+        };
+        const orderTime = new Date(order.date).getTime();
+        const matchIndex = recent.findIndex((entry) => {
+            const delta = orderTime - entry.time;
+            return (
+                delta <= duplicateWindowMs &&
+                entry.signature.userId === signature.userId &&
+                entry.signature.amount === signature.amount &&
+                entry.signature.items === signature.items &&
+                entry.signature.address === signature.address
+            );
+        });
+
+        if (matchIndex === -1) {
+            recent.push({ signature, time: orderTime, order });
+            return;
+        }
+
+        const existing = recent[matchIndex].order;
+        if (existing.payment === true && order.payment !== true) {
+            toDelete.push(order._id);
+            return;
+        }
+
+        if (order.payment === true && existing.payment !== true) {
+            toDelete.push(existing._id);
+            recent[matchIndex] = { signature, time: orderTime, order };
+            return;
+        }
+
+        toDelete.push(order._id);
+    });
+
+    if (toDelete.length) {
+        await orderModel.deleteMany({ _id: { $in: toDelete } });
+    }
 };
+
+const getDeliveredCutoff = () => new Date(Date.now() - 30 * 1000);
 
 // Placing User Order for Frontend using stripe
 const placeOrder = async (req, res) => {
@@ -88,10 +158,14 @@ const placeOrderCod = async (req, res) => {
 // Listing Order for Admin panel
 const listOrders = async (req, res) => {
     try {
-        await removeExpiredDeliveredOrders();
-        const cutoff = new Date(Date.now() - 5 * 60 * 1000);
+        await removeRecentDuplicates();
+        const cutoff = getDeliveredCutoff();
         const orders = await orderModel.find({
-            $or: [{ deliveredAt: null }, { deliveredAt: { $gt: cutoff } }]
+            $or: [
+                { deliveredAt: null, status: { $ne: "Delivered" } },
+                { deliveredAt: { $gt: cutoff } },
+                { status: "Delivered", deliveredAt: null, date: { $gt: cutoff } }
+            ]
         });
         res.json({ success: true, data: orders })
     } catch (error) {
@@ -103,12 +177,8 @@ const listOrders = async (req, res) => {
 // User Orders for Frontend
 const userOrders = async (req, res) => {
     try {
-        await removeExpiredDeliveredOrders();
-        const cutoff = new Date(Date.now() - 5 * 60 * 1000);
-        const orders = await orderModel.find({
-            userId: req.body.userId,
-            $or: [{ deliveredAt: null }, { deliveredAt: { $gt: cutoff } }]
-        });
+        await removeRecentDuplicates();
+        const orders = await orderModel.find({ userId: req.body.userId });
         res.json({ success: true, data: orders })
     } catch (error) {
         console.log(error);
@@ -143,7 +213,7 @@ const updateStatus = async (req, res) => {
         const isDelivered = req.body.status === "Delivered";
         await orderModel.findByIdAndUpdate(req.body.orderId, {
             status: req.body.status,
-            deliveredAt: isDelivered ? new Date() : order.deliveredAt
+            deliveredAt: isDelivered ? new Date() : null
         });
         res.json({ success: true, message: "Status Updated" })
     } catch (error) {

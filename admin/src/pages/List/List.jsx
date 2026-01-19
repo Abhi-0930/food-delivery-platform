@@ -54,6 +54,9 @@ const List = () => {
           <b>Price</b>
           <b>Action</b>
         </div>
+        {list.length === 0 && (
+          <div className="list-empty">No items listed yet.</div>
+        )}
         {list.map((item, index) => {
           const imageUrl = item.image?.startsWith("http") || item.image?.startsWith("/")
             ? item.image

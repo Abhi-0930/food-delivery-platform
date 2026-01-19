@@ -52,6 +52,9 @@ const Order = () => {
     <div className='order add'>
       <h3>Order Page</h3>
       <div className="order-list">
+        {uniqueOrders.length === 0 && (
+          <div className="order-empty">No orders yet.</div>
+        )}
         {uniqueOrders.map((order, index) => {
           const currentPriority = statusPriority[order.status] ?? 0;
           return (

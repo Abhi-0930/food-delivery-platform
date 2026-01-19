@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import './PlaceOrder.css'
 import { StoreContext } from '../../Context/StoreContext'
 import { assets } from '../../assets/assets';
@@ -10,6 +10,7 @@ const PlaceOrder = () => {
 
     const [payment, setPayment] = useState("cod")
     const [isPlacing, setIsPlacing] = useState(false);
+    const placingRef = useRef(false);
     const [data, setData] = useState({
         firstName: "",
         lastName: "",
@@ -34,7 +35,12 @@ const PlaceOrder = () => {
 
     const placeOrder = async (e) => {
         e.preventDefault()
-        if (isPlacing) return;
+        if (placingRef.current) return;
+        placingRef.current = true;
+        if (isPlacing) {
+            placingRef.current = false;
+            return;
+        }
         setIsPlacing(true);
         let orderItems = [];
         food_list.map(((item) => {
@@ -73,6 +79,7 @@ const PlaceOrder = () => {
             }
         } finally {
             setIsPlacing(false);
+            placingRef.current = false;
         }
 
     }
