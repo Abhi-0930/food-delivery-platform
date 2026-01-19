@@ -2,6 +2,13 @@
 
 Full‑stack food delivery app with a customer frontend, admin panel, and Node/Express backend.
 
+## Features
+- Browse menu, add to cart, and checkout
+- COD and demo Stripe flow
+- Order tracking with status timeline
+- Admin order management (status updates)
+- Admin menu management (add/remove items)
+
 ## Tech
 - Frontend: React + Vite
 - Admin: React + Vite
