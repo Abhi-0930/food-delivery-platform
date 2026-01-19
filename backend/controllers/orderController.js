@@ -8,6 +8,11 @@ const currency = "inr";
 const deliveryCharge = 50;
 const frontend_URL = 'http://localhost:5173';
 
+const removeExpiredDeliveredOrders = async () => {
+    const cutoff = new Date(Date.now() - 5 * 60 * 1000);
+    await orderModel.deleteMany({ deliveredAt: { $lte: cutoff } });
+};
+
 // Placing User Order for Frontend using stripe
 const placeOrder = async (req, res) => {
 
@@ -83,6 +88,7 @@ const placeOrderCod = async (req, res) => {
 // Listing Order for Admin panel
 const listOrders = async (req, res) => {
     try {
+        await removeExpiredDeliveredOrders();
         const orders = await orderModel.find({});
         res.json({ success: true, data: orders })
     } catch (error) {
@@ -94,6 +100,7 @@ const listOrders = async (req, res) => {
 // User Orders for Frontend
 const userOrders = async (req, res) => {
     try {
+        await removeExpiredDeliveredOrders();
         const orders = await orderModel.find({ userId: req.body.userId });
         res.json({ success: true, data: orders })
     } catch (error) {
@@ -105,7 +112,11 @@ const userOrders = async (req, res) => {
 const updateStatus = async (req, res) => {
     console.log(req.body);
     try {
-        await orderModel.findByIdAndUpdate(req.body.orderId, { status: req.body.status });
+        const isDelivered = req.body.status === "Delivered";
+        await orderModel.findByIdAndUpdate(req.body.orderId, {
+            status: req.body.status,
+            deliveredAt: isDelivered ? new Date() : null
+        });
         res.json({ success: true, message: "Status Updated" })
     } catch (error) {
         res.json({ success: false, message: "Error" })
