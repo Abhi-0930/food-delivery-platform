@@ -57,7 +57,7 @@ const PlaceOrder = () => {
                     window.location.replace(session_url);
                 }
                 else {
-                    toast.error("Something Went Wrong")
+                    toast.info("This is a demo. Please proceed with COD.")
                 }
             }
             else{
