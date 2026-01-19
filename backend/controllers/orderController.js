@@ -10,7 +10,7 @@ const frontend_URL = 'http://localhost:5173';
 
 const removeExpiredDeliveredOrders = async () => {
     const cutoff = new Date(Date.now() - 5 * 60 * 1000);
-    await orderModel.deleteMany({ deliveredAt: { $lte: cutoff } });
+    await orderModel.deleteMany({ deliveredAt: { $ne: null, $lte: cutoff } });
 };
 
 // Placing User Order for Frontend using stripe
@@ -89,7 +89,10 @@ const placeOrderCod = async (req, res) => {
 const listOrders = async (req, res) => {
     try {
         await removeExpiredDeliveredOrders();
-        const orders = await orderModel.find({});
+        const cutoff = new Date(Date.now() - 5 * 60 * 1000);
+        const orders = await orderModel.find({
+            $or: [{ deliveredAt: null }, { deliveredAt: { $gt: cutoff } }]
+        });
         res.json({ success: true, data: orders })
     } catch (error) {
         console.log(error);
@@ -101,7 +104,11 @@ const listOrders = async (req, res) => {
 const userOrders = async (req, res) => {
     try {
         await removeExpiredDeliveredOrders();
-        const orders = await orderModel.find({ userId: req.body.userId });
+        const cutoff = new Date(Date.now() - 5 * 60 * 1000);
+        const orders = await orderModel.find({
+            userId: req.body.userId,
+            $or: [{ deliveredAt: null }, { deliveredAt: { $gt: cutoff } }]
+        });
         res.json({ success: true, data: orders })
     } catch (error) {
         console.log(error);
