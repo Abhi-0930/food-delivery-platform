@@ -6,7 +6,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 //config variables
 const currency = "inr";
 const deliveryCharge = 50;
-const frontend_URL = 'http://localhost:5173';
+const frontend_URL = 'https://bite-buzz-frontend.vercel.app';
 
 const normalizeItems = (items = []) =>
     items
