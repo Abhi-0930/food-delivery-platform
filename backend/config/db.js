@@ -10,4 +10,4 @@ export const  connectDB = async () =>{
     }
 }
 
-// Do not use '@' symbol in your databse
+// Do not use '@' symbol\
