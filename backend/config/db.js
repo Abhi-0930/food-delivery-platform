@@ -9,6 +9,5 @@ export const  connectDB = async () =>{
         console.log(error);
     }
 }
-
 // add your mongoDB connection string above.
 // Do not use '@' symbol in your databse user's password else it will show an error.
